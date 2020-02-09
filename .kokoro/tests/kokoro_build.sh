@@ -19,7 +19,7 @@ set -eo pipefail
 
 check_if_changed(){
     # Ignore this test if there are no changes.
-    cd "${KOKORO_ARTIFACTS_DIR}"/github/ai-platform-samples/"${CAIP_TEST_DIR}"
+    cd "${KOKORO_ARTIFACTS_DIR}"/github/ai-platform-samples-1/"${CAIP_TEST_DIR}"
     DIFF=$(git diff master "${KOKORO_GITHUB_PULL_REQUEST_COMMIT}" "${PWD}")
     echo -e "git diff:\n ${DIFF}"
     if [[ -z ${DIFF} ]]; then
@@ -52,7 +52,7 @@ create_virtualenv(){
 install_and_run_flake8() {
     pip install -q flake8 --user
     # Run Flake in current directory.
-    cd "${KOKORO_ARTIFACTS_DIR}"/github/ai-platform-samples/"${CAIP_TEST_DIR}"
+    cd "${KOKORO_ARTIFACTS_DIR}"/github/ai-platform-samples-1/"${CAIP_TEST_DIR}"
     flake8 --max-line-length=80 . --statistics
     result=$?
     if [ ${result} -ne 0 ];then
@@ -64,7 +64,7 @@ install_and_run_flake8() {
 }
 
 main(){
-    cd github/ai-platform-samples/
+    cd github/ai-platform-samples-1/
     check_if_changed
     project_setup
     create_virtualenv
