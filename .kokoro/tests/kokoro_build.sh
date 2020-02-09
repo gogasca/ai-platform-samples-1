@@ -12,9 +12,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# This is the common setup.
 
+# `-e` enables the script to automatically fail when a command fails
+# `-o pipefail` sets the exit code to the rightmost comment to exit with a non-zero
 set -eo pipefail
+# Enables `**` to include files nested inside sub-folders
+shopt -s globstar
+
+
+# `--only-changed` will only run tests on projects container changes from the master branch.
+if [[ $* == *--only-diff* ]]; then
+    ONLY_DIFF="true"
+else
+    ONLY_DIFF="false"
+fi
 
 
 check_if_changed(){
@@ -26,7 +37,6 @@ check_if_changed(){
         echo -e "Test ignored; directory was not modified in pull request ${KOKORO_GITHUB_PULL_REQUEST_NUMBER}"
         exit 0
     fi
-
 }
 
 
@@ -41,18 +51,31 @@ project_setup(){
 
 
 create_virtualenv(){
-    sudo pip install virtualenv
-    virtualenv "${KOKORO_ARTIFACTS_DIR}"/envs/venv
-    source "${KOKORO_ARTIFACTS_DIR}"/envs/venv/bin/activate
-    # Install dependencies.
-    pip install --upgrade -r requirements.txt
+    virtualenv -p $(which "${CAIP_PYTHON_VERSION}") "${KOKORO_ARTIFACTS_DIR}"/envs/"${CAIP_PYTHON_VERSION}"/venv
+    source "${KOKORO_ARTIFACTS_DIR}"/envs/"${CAIP_PYTHON_VERSION}"/venv/bin/activate
 }
 
 
-install_and_run_flake8() {
+download_files() {
+    # Download files for testing.
+    GCS_FOLDER="gs://cloud-samples-data/ml-engine/chicago_taxi"
+    data_dir="${KOKORO_ARTIFACTS_DIR}"/data
+    echo "------------------------------------------------------------"
+    echo "- downloading files to $data_dir"
+    echo "------------------------------------------------------------"
+    gsutil cp ${GCS_FOLDER}/training/small/taxi_trips_train.csv "${data_dir}"/taxi_trips_train.csv
+    gsutil cp ${GCS_FOLDER}/training/small/taxi_trips_eval.csv "${data_dir}"/taxi_trips_eval.csv
+    gsutil cp ${GCS_FOLDER}/prediction/taxi_trips_prediction_dict.ndjson "${data_dir}"/taxi_trips_prediction_dict.ndjson
+
+    # Define ENV for `train-local.sh` script
+    export TAXI_TRAIN_SMALL="${data_dir}"/taxi_trips_train.csv
+    export TAXI_EVAL_SMALL="${data_dir}"/taxi_trips_eval.csv
+    export TAXI_PREDICTION_DICT_NDJSON="${data_dir}"/taxi_trips_prediction_dict.ndjson
+}
+
+
+run_flake8() {
     pip install -q flake8 --user
-    # Run Flake in current directory.
-    cd "${KOKORO_ARTIFACTS_DIR}"/github/ai-platform-samples-1/"${CAIP_TEST_DIR}"
     flake8 --max-line-length=80 . --statistics
     result=$?
     if [ ${result} -ne 0 ];then
@@ -63,15 +86,51 @@ install_and_run_flake8() {
     fi
 }
 
+test_directory() {
+  set +e
+  # Use RTN to return a non-zero value if the test fails.
+  RTN=0
+  ROOT=$(pwd)
+  # Download training and test data
+  download_files
+  for file in **/train-local.sh; do
+      cd "$ROOT"
+      # Navigate to the project folder.
+      file=$(dirname "$file")
+      cd "$file"
+      # If $DIFF_ONLY is true, skip projects without changes.
+      if [[ "$ONLY_DIFF" = "true" ]]; then
+          git diff --quiet origin/master.. .
+          CHANGED=$?
+          if [[ "$CHANGED" -eq 0 ]]; then
+            # echo -e "\n Skipping $file: no changes in folder.\n"
+            continue
+          fi
+      fi
+      cd "${file%/*}"
+      run_flake8
+      echo "------------------------------------------------------------"
+      echo "- testing $file"
+      echo "------------------------------------------------------------"
+      cd "${file%/*}"
+      source scripts/train-local.sh
+      EXIT=$?
+      if [[ $EXIT -ne 0 ]]; then
+        RTN=1
+        echo -e "\n Testing failed: Nox returned a non-zero exit code. \n"
+      else
+        echo -e "\n Testing completed.\n"
+      fi
+  done
+  cd "$ROOT"
+  exit "$RTN"
+}
+
 main(){
-    cd github/ai-platform-samples-1/
-    check_if_changed
     project_setup
     create_virtualenv
-    install_and_run_flake8
     # Run specific test.
-    bash "${KOKORO_ARTIFACTS_DIR}"/"${CAIP_TEST_SCRIPT}"
-
+    test_directory
 }
 
 main
