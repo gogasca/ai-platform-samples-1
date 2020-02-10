@@ -110,7 +110,7 @@ test_directory() {
       echo "------------------------------------------------------------"
       echo "- testing $file"
       echo "------------------------------------------------------------"
-      if [[ "$file" == "pytorch/"* ]]; then
+      if [[ "$file" == *"pytorch/"* ]]; then
         continue
       fi
       cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
