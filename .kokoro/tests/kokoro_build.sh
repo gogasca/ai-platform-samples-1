@@ -107,11 +107,11 @@ test_directory() {
             continue
           fi
       fi
-      cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
-      run_flake8
       echo "------------------------------------------------------------"
       echo "- testing $file"
       echo "------------------------------------------------------------"
+      cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
+      run_flake8
       source scripts/train-local.sh
       EXIT=$?
       if [[ $EXIT -ne 0 ]]; then
