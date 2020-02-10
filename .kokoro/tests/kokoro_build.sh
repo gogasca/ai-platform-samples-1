@@ -110,6 +110,9 @@ test_directory() {
       echo "------------------------------------------------------------"
       echo "- testing $file"
       echo "------------------------------------------------------------"
+      if [[ "$file" == "pytorch/"* ]]; then
+        continue
+      fi
       cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
       run_flake8
       source scripts/train-local.sh
