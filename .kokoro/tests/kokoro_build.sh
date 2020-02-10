@@ -75,7 +75,7 @@ download_files() {
 
 
 run_flake8() {
-    pip install -q flake8 --user
+    pip install -q flake8
     flake8 --max-line-length=80 . --statistics
     result=$?
     if [ ${result} -ne 0 ];then
@@ -107,12 +107,11 @@ test_directory() {
             continue
           fi
       fi
-      cd "${file%/*}"
+      cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
       run_flake8
       echo "------------------------------------------------------------"
       echo "- testing $file"
       echo "------------------------------------------------------------"
-      cd "${file%/*}"
       source scripts/train-local.sh
       EXIT=$?
       if [[ $EXIT -ne 0 ]]; then
