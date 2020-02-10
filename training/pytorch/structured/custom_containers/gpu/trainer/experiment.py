@@ -24,7 +24,8 @@ def train(sequential_model, train_loader, criterion, optimizer, epoch):
      statistics about the performance of the DNN during training.
 
     Args:
-      sequential_model: The neural network that you are training, based on nn.Module
+      sequential_model: The neural network that you are training, based on
+                        nn.Module
       train_loader: The training dataset
       criterion: The loss function used during training
       optimizer: The selected optmizer to update parameters and gradients
@@ -58,7 +59,8 @@ def test(sequential_model, test_loader, criterion):
      display some statistics about the performance of the DNN during testing.
 
     Args:
-      sequential_model: The neural network that you are testing, based on nn.Module
+      sequential_model: The neural network that you are testing, based on
+                        nn.Module
       test_loader: The test / evaluation dataset
       criterion: The loss function
     """
@@ -97,7 +99,10 @@ def run(args):
       args: experiment parameters.
     """
     cuda_availability = torch.cuda.is_available()
-    device = torch.device('cuda:{}'.format(torch.cuda.current_device()) if cuda_availability else 'cpu')
+    if cuda_availability:
+        device = torch.device('cuda:{}'.format(torch.cuda.current_device()))
+    else:
+        device = 'cpu'
     print('\n*************************')
     print('`cuda` available: {}'.format(cuda_availability))
     print('Current Device: {}'.format(device))

@@ -116,7 +116,7 @@ test_directory() {
       EXIT=$?
       if [[ $EXIT -ne 0 ]]; then
         RTN=1
-        echo -e "\n Testing failed: Nox returned a non-zero exit code. \n"
+        echo -e "\n Testing failed: Script returned a non-zero exit code. \n"
       else
         echo -e "\n Testing completed.\n"
       fi
