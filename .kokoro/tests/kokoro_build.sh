@@ -115,6 +115,9 @@ test_directory() {
       fi
       cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
       run_flake8
+      echo "------------------------------------------------------------"
+      echo "- Installing dependencies...for $file"
+      echo "------------------------------------------------------------"
       pip install -r requirements.txt
       source scripts/train-local.sh
       EXIT=$?
