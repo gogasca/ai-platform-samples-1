@@ -115,6 +115,7 @@ test_directory() {
       fi
       cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
       run_flake8
+      pip install -r requirements.txt
       source scripts/train-local.sh
       EXIT=$?
       if [[ $EXIT -ne 0 ]]; then
