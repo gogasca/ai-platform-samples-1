@@ -61,7 +61,7 @@ download_files() {
     GCS_FOLDER="gs://cloud-samples-data/ml-engine/chicago_taxi"
     data_dir="${KOKORO_ARTIFACTS_DIR}"/data
     echo "------------------------------------------------------------"
-    echo "- downloading files to $data_dir"
+    echo "- Downloading files to $data_dir"
     echo "------------------------------------------------------------"
     gsutil cp ${GCS_FOLDER}/training/small/taxi_trips_train.csv "${data_dir}"/taxi_trips_train.csv
     gsutil cp ${GCS_FOLDER}/training/small/taxi_trips_eval.csv "${data_dir}"/taxi_trips_eval.csv
@@ -108,7 +108,7 @@ test_directory() {
           fi
       fi
       echo "------------------------------------------------------------"
-      echo "- testing $file"
+      echo "- Testing $file"
       echo "------------------------------------------------------------"
       if [[ "$file" == *"pytorch/"* ]]; then
         continue
