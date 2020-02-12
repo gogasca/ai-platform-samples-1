@@ -88,9 +88,8 @@ run_tests() {
       cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
       # If $DIFF_ONLY is true, skip projects without changes.
       if [[ "$ONLY_DIFF" = "true" ]]; then
-          git diff --quiet origin/master.. .
-          CHANGED=$?
-          if [[ "$CHANGED" -eq 0 ]]; then
+          CHANGED=$(git diff master "${KOKORO_GITHUB_PULL_REQUEST_COMMIT}" $(pwd))
+          if [[ -z "$CHANGED" ]]; then
             # echo -e "\n Skipping $file: no changes in folder.\n"
             continue
           fi
