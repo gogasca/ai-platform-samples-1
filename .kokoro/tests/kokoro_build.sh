@@ -28,18 +28,6 @@ else
 fi
 
 
-check_if_changed(){
-    # Ignore this test if there are no changes.
-    cd "${KOKORO_ARTIFACTS_DIR}"/github/ai-platform-samples-1/"${CAIP_TEST_DIR}"
-    DIFF=$(git diff master "${KOKORO_GITHUB_PULL_REQUEST_COMMIT}" "${PWD}")
-    echo -e "git diff:\n ${DIFF}"
-    if [[ -z ${DIFF} ]]; then
-        echo -e "Test ignored; directory was not modified in pull request ${KOKORO_GITHUB_PULL_REQUEST_NUMBER}"
-        exit 0
-    fi
-}
-
-
 project_setup(){
     # Update to latest SDK for gcloud ai-platform command.
     local KEYFILE="${KOKORO_GFILE_DIR}/keyfile.json"
@@ -86,7 +74,7 @@ run_flake8() {
     fi
 }
 
-test_directory() {
+run_tests() {
   set +e
   # Use RTN to return a non-zero value if the test fails.
   RTN=0
@@ -118,7 +106,7 @@ test_directory() {
       echo "------------------------------------------------------------"
       echo "- Installing dependencies...for $file"
       echo "------------------------------------------------------------"
-      pip install -r requirements.txt
+      pip install -q -r requirements.txt
       source scripts/train-local.sh
       EXIT=$?
       if [[ $EXIT -ne 0 ]]; then
@@ -135,8 +123,7 @@ test_directory() {
 main(){
     project_setup
     create_virtualenv
-    # Run specific test.
-    test_directory
+    run_tests
 }
 
 main

@@ -21,7 +21,7 @@ set -eo pipefail
 function cleanup() {
     chmod +x "${KOKORO_GFILE_DIR}"/trampoline_cleanup.sh
     "${KOKORO_GFILE_DIR}"/trampoline_cleanup.sh
-    echo "cleanup";
+    echo -e "Trampoline cleanup";
 }
 trap cleanup EXIT
 
