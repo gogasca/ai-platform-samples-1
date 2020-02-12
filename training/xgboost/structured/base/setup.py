@@ -20,8 +20,8 @@ from setuptools import setup
 # While this is an xgboost sample, we will still require tensorflow and
 # scikit-learn to be installed, since the sample uses certain functionalities
 # available in those libraries:
-#    tensorflow: mainly to copy files seamlessly to GCS
-#    scikit-learn: the helpfer functions it provides, e.g. splitting datasets
+#   tensorflow: mainly to copy files seamlessly to GCS
+#   scikit-learn: the helpfer functions it provides, e.g. splitting datasets
 
 REQUIRED_PACKAGES = [
     'tensorflow==1.15.2',
