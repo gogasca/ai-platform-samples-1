@@ -34,6 +34,8 @@ gcloud ai-platform jobs submit training ${JOB_NAME} \
         --module-name=trainer.task \
         --package-path=${PACKAGE_PATH}  \
         --config=../config.yaml \
+        --parameter-server-count 1 \
+        --worker-server-count 4 \
         -- \
         --train-files=${GCS_TAXI_TRAIN_BIG} \
         --eval-files=${GCS_TAXI_EVAL_BIG} \

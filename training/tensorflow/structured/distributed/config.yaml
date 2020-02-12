@@ -1,4 +1,7 @@
 trainingInput:
-  scaleTier: BASIC_GPU # BASIC | BASIC_GPU | STANDARD_1 | PREMIUM_1
-
-# TODO Add Distributed training options.
+  scaleTier: CUSTOM
+  masterType: n1-highcpu-16
+  workerType: n1-highcpu-16
+  parameterServerType: n1-highmem-8
+  workerCount: 4
+  parameterServerCount: 1
