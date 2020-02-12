@@ -85,7 +85,7 @@ run_tests() {
       cd "$ROOT"
       # Navigate to the project folder.
       file=$(dirname "$file")
-      cd "$file"
+      cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
       # If $DIFF_ONLY is true, skip projects without changes.
       if [[ "$ONLY_DIFF" = "true" ]]; then
           git diff --quiet origin/master.. .
@@ -101,7 +101,6 @@ run_tests() {
       if [[ "$file" == *"pytorch/"* ]]; then
         continue
       fi
-      cd "${KOKORO_ARTIFACTS_DIR}"/"${file%/*}"
       run_flake8
       echo "------------------------------------------------------------"
       echo "- Installing dependencies...for $file"
